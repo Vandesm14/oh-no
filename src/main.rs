@@ -16,6 +16,16 @@ struct Computer {
   outgoing: HashMap<EdgeIndex, Vec<Message>>,
 }
 
+impl fmt::Debug for Computer {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    let mut debugged = f.debug_struct("Computer");
+    debugged.field("id", &self.id);
+    debugged.field("ingoing", &self.ingoing);
+    debugged.field("outgoing", &self.outgoing);
+    debugged.finish()
+  }
+}
+
 impl Computer {
   fn new(id: ComputerID, run: ComputerRun) -> Self {
     Computer {
@@ -38,39 +48,41 @@ impl Computer {
   }
 }
 
+#[derive(Debug)]
 struct Message {
   port: MessagePort,
   data: MessageData,
 }
 
+#[derive(Debug)]
 enum MessageData {
   BGPMessage { path: Vec<ComputerID> },
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 struct World {
   graph: UnGraph<ComputerID, ()>,
   addressbook: BiMap<ComputerID, NodeIndex>,
   computers: Vec<Computer>,
 }
 
-impl fmt::Debug for World {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    self.graph.node_indices().try_for_each(|i| {
-      let computer_id = self.addressbook.get_by_right(&i).unwrap();
-      let computer = self.computers.get(*computer_id).unwrap();
+// impl fmt::Debug for World {
+//   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//     self.graph.node_indices().try_for_each(|i| {
+//       let computer_id = self.addressbook.get_by_right(&i).unwrap();
+//       let computer = self.computers.get(*computer_id).unwrap();
 
-      writeln!(
-        f,
-        "{}: {} connections | messages ({} in, {} out)",
-        computer.id,
-        self.graph.neighbors(i).count(),
-        computer.ingoing.len(),
-        computer.outgoing.len()
-      )
-    })
-  }
-}
+//       writeln!(
+//         f,
+//         "{}: {} connections | messages ({} in, {} out)",
+//         computer.id,
+//         self.graph.neighbors(i).count(),
+//         computer.ingoing.len(),
+//         computer.outgoing.len()
+//       )
+//     })
+//   }
+// }
 
 impl World {
   fn tick(&mut self) {
@@ -127,5 +139,5 @@ fn main() {
   world.connect_computers(pc1, pc2);
   world.tick();
 
-  println!("{:?}", world);
+  println!("{:#?}", world);
 }
