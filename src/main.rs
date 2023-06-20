@@ -66,23 +66,23 @@ struct World {
   computers: Vec<Computer>,
 }
 
-// impl fmt::Debug for World {
-//   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//     self.graph.node_indices().try_for_each(|i| {
-//       let computer_id = self.addressbook.get_by_right(&i).unwrap();
-//       let computer = self.computers.get(*computer_id).unwrap();
+impl fmt::Display for World {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    self.graph.node_indices().try_for_each(|i| {
+      let computer_id = self.addressbook.get_by_right(&i).unwrap();
+      let computer = self.computers.get(*computer_id).unwrap();
 
-//       writeln!(
-//         f,
-//         "{}: {} connections | messages ({} in, {} out)",
-//         computer.id,
-//         self.graph.neighbors(i).count(),
-//         computer.ingoing.len(),
-//         computer.outgoing.len()
-//       )
-//     })
-//   }
-// }
+      writeln!(
+        f,
+        "{}: {} connections | messages ({} in, {} out)",
+        computer.id,
+        self.graph.neighbors(i).count(),
+        computer.ingoing.len(),
+        computer.outgoing.len()
+      )
+    })
+  }
+}
 
 impl World {
   fn tick(&mut self) {
@@ -140,4 +140,5 @@ fn main() {
   world.tick();
 
   println!("{:#?}", world);
+  println!("{}", world)
 }
