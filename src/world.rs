@@ -1,6 +1,6 @@
 use bimap::BiMap;
 use petgraph::prelude::*;
-use std::{cell::RefCell, collections::HashMap, fmt};
+use std::{cell::RefCell, fmt};
 
 use crate::{Computer, ComputerID, ComputerRun, MessageQueue};
 
