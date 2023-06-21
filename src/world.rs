@@ -1,5 +1,5 @@
 use petgraph::prelude::*;
-use std::{cell::RefCell, collections::HashSet, fmt};
+use std::{cell::RefCell, fmt, fs};
 
 use crate::{Computer, ComputerID, ComputerRun, MessageQueue};
 
@@ -112,8 +112,30 @@ impl World {
 
     self.graph.add_node(computer_id);
     self.computers.push(RefCell::new(computer));
+    Self::add_computer_data_dir(computer_id).unwrap();
 
     computer_id
+  }
+
+  fn add_computers_dir() -> Result<(), std::io::Error> {
+    match fs::read_dir("./computers") {
+      Err(_) => fs::create_dir("./computers"),
+      Ok(_) => Ok(()),
+    }
+  }
+
+  fn add_computer_data_dir(
+    computer_id: ComputerID,
+  ) -> Result<(), std::io::Error> {
+    let result = Self::add_computers_dir();
+    if result.is_err() {
+      return result;
+    }
+
+    match fs::read_dir(format!("./computers/{}", computer_id)) {
+      Err(_) => fs::create_dir(format!("./computers/{}", computer_id)),
+      Ok(_) => Ok(()),
+    }
   }
 
   /// Connects two computers by their node indecies

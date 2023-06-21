@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use crate::{Computer, ComputerRunReturn, Message, MessageData};
 use petgraph::prelude::*;
 
