@@ -54,9 +54,6 @@ impl World {
       // Run through all outgoing messages
       computer.borrow_mut().outgoing.iter().for_each(|message| {
         let edge = self.graph.edge_endpoints(message.edge);
-        // let neighbor_index =
-        // let neighbor_id = neighbor_index.index();
-        // let neighbor = self.computers.get(neighbor_id).unwrap();
 
         if let Some(edge) = edge {
           let recipient_id = if edge.1.index() == computer_id {
