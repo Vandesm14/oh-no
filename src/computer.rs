@@ -26,6 +26,13 @@ pub struct Computer {
   pub run: ComputerRun,
   pub incoming: MessageQueue,
   pub outgoing: MessageQueue,
+  pub data: ComputerData,
+}
+
+#[derive(Clone, Debug)]
+pub enum ComputerData {
+  Blank,
+  Counter(u64),
 }
 
 impl fmt::Debug for Computer {
@@ -39,12 +46,17 @@ impl fmt::Debug for Computer {
 }
 
 impl Computer {
-  pub fn new(id: ComputerID, run: ComputerRun) -> Self {
+  pub fn new(
+    id: ComputerID,
+    run: ComputerRun,
+    data: Option<ComputerData>,
+  ) -> Self {
     Computer {
       id,
       run,
       incoming: vec![],
       outgoing: vec![],
+      data: data.unwrap_or(ComputerData::Blank),
     }
   }
 }

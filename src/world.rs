@@ -1,7 +1,7 @@
 use petgraph::prelude::*;
 use std::{cell::RefCell, fmt};
 
-use crate::{Computer, ComputerID, ComputerRun, MessageQueue};
+use crate::{Computer, ComputerData, ComputerID, ComputerRun, MessageQueue};
 
 #[derive(Default, Debug)]
 pub struct World {
@@ -105,8 +105,12 @@ impl World {
   }
 
   /// Adds a computer to the world
-  pub fn add_computer(&mut self, run: ComputerRun) -> ComputerID {
-    let computer = Computer::new(self.computers.len(), run);
+  pub fn add_computer(
+    &mut self,
+    run: ComputerRun,
+    data: Option<ComputerData>,
+  ) -> ComputerID {
+    let computer = Computer::new(self.computers.len(), run, data);
     let computer_id = computer.id;
 
     self.graph.add_node(computer_id);

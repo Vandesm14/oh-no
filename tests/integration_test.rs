@@ -3,8 +3,8 @@ use oh_no::{pc_send_blank_msg, World};
 #[test]
 fn it_propagates_messages() {
   let mut world = World::default();
-  let pc1 = world.add_computer(pc_send_blank_msg);
-  let pc2 = world.add_computer(pc_send_blank_msg);
+  let pc1 = world.add_computer(pc_send_blank_msg, None);
+  let pc2 = world.add_computer(pc_send_blank_msg, None);
 
   world.connect_computers(pc1, pc2);
   world.tick_run_computers();
@@ -39,8 +39,8 @@ fn it_propagates_messages() {
 #[test]
 fn it_propagates_messages_with_tick() {
   let mut world = World::default();
-  let pc1 = world.add_computer(pc_send_blank_msg);
-  let pc2 = world.add_computer(pc_send_blank_msg);
+  let pc1 = world.add_computer(pc_send_blank_msg, None);
+  let pc2 = world.add_computer(pc_send_blank_msg, None);
 
   world.connect_computers(pc1, pc2);
 
@@ -64,8 +64,8 @@ fn it_propagates_messages_with_tick() {
 #[test]
 fn it_routes_messages_using_edge_index() {
   let mut world = World::default();
-  let pc1 = world.add_computer(pc_send_blank_msg);
-  let pc2 = world.add_computer(pc_send_blank_msg);
+  let pc1 = world.add_computer(pc_send_blank_msg, None);
+  let pc2 = world.add_computer(pc_send_blank_msg, None);
 
   world.connect_computers(pc1, pc2);
   world.tick_run_computers();
@@ -95,12 +95,12 @@ fn it_propagates_messages_for_multiple_connections() {
   let mut world = World::default();
 
   // Network Structure (node densities): 3 -> 1 -> 2
-  let pc_a1 = world.add_computer(pc_send_blank_msg); // 0
-  let pc_a2 = world.add_computer(pc_send_blank_msg); // 1
-  let pc_a3 = world.add_computer(pc_send_blank_msg); // 2
-  let pc_b1 = world.add_computer(pc_send_blank_msg); // 3
-  let pc_c1 = world.add_computer(pc_send_blank_msg); // 4
-  let pc_c2 = world.add_computer(pc_send_blank_msg); // 5
+  let pc_a1 = world.add_computer(pc_send_blank_msg, None); // 0
+  let pc_a2 = world.add_computer(pc_send_blank_msg, None); // 1
+  let pc_a3 = world.add_computer(pc_send_blank_msg, None); // 2
+  let pc_b1 = world.add_computer(pc_send_blank_msg, None); // 3
+  let pc_c1 = world.add_computer(pc_send_blank_msg, None); // 4
+  let pc_c2 = world.add_computer(pc_send_blank_msg, None); // 5
 
   world.connect_computers(pc_a1, pc_a2);
 
