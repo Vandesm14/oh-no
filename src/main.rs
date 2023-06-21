@@ -1,16 +1,26 @@
-use oh_no::{Computer, Message, MessageData, World};
+use std::collections::HashMap;
+
+use oh_no::{
+  queue_outgoing, Computer, Message, MessageData, MessageQueue, World,
+};
 use petgraph::prelude::*;
 
-fn pc_print_id(me: &mut Computer, edges: Vec<EdgeIndex>) {
+fn pc_print_id(computer: &Computer, edges: Vec<EdgeIndex>) -> MessageQueue {
+  let mut message_queue: MessageQueue = HashMap::new();
   edges.into_iter().for_each(|edge| {
-    me.queue_outgoing(
+    queue_outgoing(
+      &mut message_queue,
       edge,
       Message {
         port: 0,
-        data: MessageData::BGPMessage { path: vec![me.id] },
+        data: MessageData::BGPMessage {
+          path: vec![computer.id],
+        },
       },
     )
   });
+
+  message_queue
 }
 
 fn main() {
