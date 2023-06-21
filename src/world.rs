@@ -1,7 +1,7 @@
 use petgraph::prelude::*;
-use std::{cell::RefCell, fmt};
+use std::{cell::RefCell, collections::HashSet, fmt};
 
-use crate::{Computer, ComputerData, ComputerID, ComputerRun, MessageQueue};
+use crate::{Computer, ComputerID, ComputerRun, MessageQueue};
 
 #[derive(Default, Debug)]
 pub struct World {
@@ -51,11 +51,9 @@ impl World {
       let edges = self.edge_ids(computer_id);
       let computer = self.computers.get_mut(computer_id).unwrap();
 
-      let (queue, data) = (computer.borrow().run)(&computer.borrow(), edges);
-      computer.borrow_mut().outgoing = queue;
-      if let Some(data) = data {
-        computer.borrow_mut().data = data
-      };
+      let queue = (computer.borrow().run)(&computer.borrow(), edges);
+      let mut computer_mut = computer.borrow_mut();
+      computer_mut.outgoing = queue;
     });
 
     // What I want it to be...
@@ -108,12 +106,8 @@ impl World {
   }
 
   /// Adds a computer to the world
-  pub fn add_computer(
-    &mut self,
-    run: ComputerRun,
-    data: Option<ComputerData>,
-  ) -> ComputerID {
-    let computer = Computer::new(self.computers.len(), run, data);
+  pub fn add_computer(&mut self, run: ComputerRun) -> ComputerID {
+    let computer = Computer::new(self.computers.len(), run);
     let computer_id = computer.id;
 
     self.graph.add_node(computer_id);

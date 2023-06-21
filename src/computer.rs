@@ -3,7 +3,7 @@ use std::fmt;
 
 pub type ComputerRun =
   fn(computer: &Computer, Vec<EdgeIndex>) -> ComputerRunReturn;
-pub type ComputerRunReturn = (MessageQueue, Option<ComputerData>);
+pub type ComputerRunReturn = MessageQueue;
 
 pub type ComputerID = usize;
 pub type MessagePort = u8;
@@ -29,13 +29,6 @@ pub struct Computer {
   pub run: ComputerRun,
   pub incoming: MessageQueue,
   pub outgoing: MessageQueue,
-  pub data: ComputerData,
-}
-
-#[derive(Clone, Debug)]
-pub enum ComputerData {
-  Blank,
-  Counter(usize),
 }
 
 impl fmt::Debug for Computer {
@@ -49,17 +42,12 @@ impl fmt::Debug for Computer {
 }
 
 impl Computer {
-  pub fn new(
-    id: ComputerID,
-    run: ComputerRun,
-    data: Option<ComputerData>,
-  ) -> Self {
+  pub fn new(id: ComputerID, run: ComputerRun) -> Self {
     Computer {
       id,
       run,
       incoming: vec![],
       outgoing: vec![],
-      data: data.unwrap_or(ComputerData::Blank),
     }
   }
 }
