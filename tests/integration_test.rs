@@ -1,4 +1,4 @@
-use oh_no::{pc_send_blank_msg, World};
+use oh_no::{pc_count_up_on_receive, pc_send_blank_msg, ComputerData, World};
 
 #[test]
 fn it_propagates_messages() {
@@ -127,4 +127,26 @@ fn it_propagates_messages_for_multiple_connections() {
   // C2 gets a message from B1
   assert_eq!(world.get_computer(pc_c1).unwrap().incoming.len(), 1);
   assert_eq!(world.get_computer(pc_c2).unwrap().incoming.len(), 1);
+}
+
+#[test]
+fn it_can_mutate_data() {
+  let mut world = World::default();
+  let pc1 = world.add_computer(pc_send_blank_msg, None);
+  let pc2 =
+    world.add_computer(pc_count_up_on_receive, Some(ComputerData::Counter(0)));
+
+  world.connect_computers(pc1, pc2);
+
+  // Run two ticks (incoming queues should be cleared)
+  world.tick();
+  world.tick();
+  world.tick();
+
+  // Refresh the reference
+  let pc2 = world.get_computer(pc2).unwrap();
+
+  if let ComputerData::Counter(value) = pc2.data {
+    assert_eq!(value, 2);
+  }
 }
