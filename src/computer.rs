@@ -35,7 +35,7 @@ pub struct Computer {
 #[derive(Clone, Debug)]
 pub enum ComputerData {
   Blank,
-  Counter(u64),
+  Counter(usize),
 }
 
 impl fmt::Debug for Computer {

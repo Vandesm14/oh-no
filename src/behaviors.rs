@@ -1,4 +1,4 @@
-use crate::{Computer, ComputerRunReturn, Message, MessageData};
+use crate::{Computer, ComputerData, ComputerRunReturn, Message, MessageData};
 use petgraph::prelude::*;
 
 /// Sends a BGP propagation message to all neighbors
@@ -36,5 +36,22 @@ pub fn pc_send_blank_msg(
       })
       .collect(),
     None,
+  )
+}
+
+/// Increments the counter for every message received
+pub fn pc_count_up_on_receive(
+  computer: &Computer,
+  _edges: Vec<EdgeIndex>,
+) -> ComputerRunReturn {
+  println!("{}: {}", computer.id, computer.incoming.len());
+  (
+    vec![],
+    Some(match computer.data {
+      ComputerData::Counter(count) => {
+        ComputerData::Counter(count + computer.incoming.len())
+      }
+      _ => computer.data.clone(),
+    }),
   )
 }
