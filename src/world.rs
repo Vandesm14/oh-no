@@ -29,7 +29,12 @@ impl fmt::Display for World {
 impl World {
   /// Run a tick on the world
   pub fn tick(&mut self) {
-    // Run each computer
+    self.tick_run_computers();
+    self.tick_deliver_messages(true);
+  }
+
+  /// Run each computer and insert messages into the outgoing queue
+  pub fn tick_run_computers(&mut self) {
     self.graph.node_indices().for_each(|node_index| {
       let computer_id = node_index.index();
       let edges = self.edge_ids(computer_id);
@@ -45,8 +50,10 @@ impl World {
 
     //   (computer.borrow().run)(&computer.borrow(), edges);
     // });
+  }
 
-    // Deliver messages
+  /// Deliver messages to the correct computers
+  pub fn tick_deliver_messages(&mut self, clear_outgoing: bool) {
     self.graph.node_indices().for_each(|node_index| {
       let computer_id = node_index.index();
       let computer = self.computers.get(computer_id).unwrap();
@@ -69,6 +76,18 @@ impl World {
 
         // If not, drop the message
       });
+
+      if clear_outgoing {
+        computer.borrow_mut().outgoing = MessageQueue::new();
+      }
+    });
+  }
+
+  /// Clear all outgoing queues
+  pub fn tick_outgoing_queues(&mut self) {
+    self.graph.node_indices().for_each(|node_index| {
+      let computer_id = node_index.index();
+      let computer = self.computers.get(computer_id).unwrap();
 
       computer.borrow_mut().outgoing = MessageQueue::new();
     });
