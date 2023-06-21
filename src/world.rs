@@ -19,7 +19,7 @@ impl fmt::Display for World {
         "{}: {} connections | messages ({} in, {} out)",
         computer.borrow().id,
         self.graph.neighbors(i).count(),
-        computer.borrow().ingoing.len(),
+        computer.borrow().incoming.len(),
         computer.borrow().outgoing.len()
       )
     })
@@ -64,7 +64,7 @@ impl World {
 
           let recipient = self.computers.get(recipient_id).unwrap();
 
-          recipient.borrow_mut().ingoing.push(message.clone());
+          recipient.borrow_mut().incoming.push(message.clone());
         }
 
         // If not, drop the message

@@ -10,11 +10,11 @@ fn it_propagates_messages() {
   world.tick();
 
   // PC1 should have a message in its incoming queue, but not outgoing
-  assert_eq!(world.get_computer(pc1).unwrap().ingoing.len(), 1);
+  assert_eq!(world.get_computer(pc1).unwrap().incoming.len(), 1);
   assert_eq!(world.get_computer(pc1).unwrap().outgoing.len(), 0);
 
   // PC2 should have a message in its incoming queue, but not outgoing
-  assert_eq!(world.get_computer(pc2).unwrap().ingoing.len(), 1);
+  assert_eq!(world.get_computer(pc2).unwrap().incoming.len(), 1);
   assert_eq!(world.get_computer(pc2).unwrap().outgoing.len(), 0);
 }
 

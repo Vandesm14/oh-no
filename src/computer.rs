@@ -24,7 +24,7 @@ pub type MessageQueue = Vec<Message>;
 pub struct Computer {
   pub id: ComputerID,
   pub run: ComputerRun,
-  pub ingoing: MessageQueue,
+  pub incoming: MessageQueue,
   pub outgoing: MessageQueue,
 }
 
@@ -32,7 +32,7 @@ impl fmt::Debug for Computer {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     let mut debugged = f.debug_struct("Computer");
     debugged.field("id", &self.id);
-    debugged.field("ingoing", &self.ingoing);
+    debugged.field("incoming", &self.incoming);
     debugged.field("outgoing", &self.outgoing);
     debugged.finish()
   }
@@ -43,7 +43,7 @@ impl Computer {
     Computer {
       id,
       run,
-      ingoing: vec![],
+      incoming: vec![],
       outgoing: vec![],
     }
   }
