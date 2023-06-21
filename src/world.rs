@@ -106,10 +106,6 @@ impl World {
   ) -> Result<Computer, &'static str> {
     let computer = self.computers.get(computer_id).expect("Computer not found");
 
-    // FIXME: Cloning doesn't seem like the best idea, but I couldn't figure out
-    // how to get a ref to the computer outside of the RefCell.
-    let cloned = (computer.borrow()).clone();
-
-    Ok(cloned)
+    Ok(computer.to_owned().into_inner())
   }
 }
