@@ -15,6 +15,7 @@ pub struct Message {
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum MessageData {
   BGPMessage { path: Vec<ComputerID> },
+  Blank,
 }
 
 pub type MessageQueue = Vec<Message>;
