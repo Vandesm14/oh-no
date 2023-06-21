@@ -11,6 +11,11 @@ pub struct World {
   computers: Vec<RefCell<Computer>>,
 }
 
+pub struct AddResult {
+  pub node: NodeIndex,
+  pub id: ComputerID,
+}
+
 impl fmt::Display for World {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     self.graph.node_indices().try_for_each(|i| {
@@ -78,13 +83,18 @@ impl World {
   }
 
   /// Adds a computer to the world
-  pub fn add_computer(&mut self, run: ComputerRun) -> NodeIndex {
+  pub fn add_computer(&mut self, run: ComputerRun) -> AddResult {
     let computer = Computer::new(self.computers.len(), run);
-    let node_index = self.graph.add_node(computer.id);
+    let computer_id = computer.id;
+
+    let node_index = self.graph.add_node(computer_id);
     self.addressbook.insert(self.computers.len(), node_index);
     self.computers.push(RefCell::new(computer));
 
-    node_index
+    AddResult {
+      node: node_index,
+      id: computer_id,
+    }
   }
 
   /// Connects two computers by their node indecies
