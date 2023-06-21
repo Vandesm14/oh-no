@@ -21,5 +21,5 @@ fn main() {
   world.tick();
 
   println!("{:#?}", world);
-  println!("{}", world)
+  println!("{}", world);
 }

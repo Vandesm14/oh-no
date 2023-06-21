@@ -37,6 +37,31 @@ fn it_propagates_messages() {
 }
 
 #[test]
+fn it_propagates_messages_with_tick() {
+  let mut world = World::default();
+  let pc1 = world.add_computer(pc_send_blank_msg);
+  let pc2 = world.add_computer(pc_send_blank_msg);
+
+  world.connect_computers(pc1, pc2);
+
+  // Run two ticks (incoming queues should be cleared)
+  world.tick();
+  world.tick();
+
+  // Refresh the references
+  let pc1 = world.get_computer(pc1).unwrap();
+  let pc2 = world.get_computer(pc2).unwrap();
+
+  // PC1 should have a message in its incoming queue, but not outgoing
+  assert_eq!(pc1.incoming.len(), 1);
+  assert_eq!(pc1.outgoing.len(), 0);
+
+  // PC2 should have a message in its incoming queue, but not outgoing
+  assert_eq!(pc2.incoming.len(), 1);
+  assert_eq!(pc2.outgoing.len(), 0);
+}
+
+#[test]
 fn it_routes_messages_using_edge_index() {
   let mut world = World::default();
   let pc1 = world.add_computer(pc_send_blank_msg);

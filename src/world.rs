@@ -29,8 +29,19 @@ impl fmt::Display for World {
 impl World {
   /// Run a tick on the world
   pub fn tick(&mut self) {
+    self.tick_incoming_queues();
     self.tick_run_computers();
     self.tick_deliver_messages(true);
+  }
+
+  /// Clear all incoming queues
+  pub fn tick_incoming_queues(&mut self) {
+    self.graph.node_indices().for_each(|node_index| {
+      let computer_id = node_index.index();
+      let computer = self.computers.get(computer_id).unwrap();
+
+      computer.borrow_mut().incoming = MessageQueue::new();
+    });
   }
 
   /// Run each computer and insert messages into the outgoing queue
