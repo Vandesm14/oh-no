@@ -60,23 +60,18 @@ impl World {
       let computer = self.computers.get(*computer_id).unwrap();
 
       // Run through all outgoing messages
-      computer.borrow_mut().outgoing.iter_mut().for_each(
-        |(edge_index, message)| {
-          let neighbor_index = self
-            .graph
-            .neighbors(node_index)
-            .find(|n| n.index() != node_index.index())
-            .unwrap();
-          let neighbor_id =
-            self.addressbook.get_by_right(&neighbor_index).unwrap();
-          let neighbor = self.computers.get(*neighbor_id).unwrap();
+      computer.borrow_mut().outgoing.iter().for_each(|message| {
+        let neighbor_index = self
+          .graph
+          .neighbors(node_index)
+          .find(|n| n.index() != node_index.index())
+          .unwrap();
+        let neighbor_id =
+          self.addressbook.get_by_right(&neighbor_index).unwrap();
+        let neighbor = self.computers.get(*neighbor_id).unwrap();
 
-          neighbor
-            .borrow_mut()
-            .ingoing
-            .insert(*edge_index, (*message).clone());
-        },
-      );
+        neighbor.borrow_mut().ingoing.push(message.clone());
+      });
 
       computer.borrow_mut().outgoing = MessageQueue::new();
     });

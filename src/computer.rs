@@ -1,8 +1,5 @@
 use petgraph::prelude::*;
-use std::{
-  collections::{hash_map::Entry, HashMap},
-  fmt,
-};
+use std::fmt;
 
 pub type ComputerID = usize;
 pub type ComputerRun = fn(computer: &Computer, Vec<EdgeIndex>) -> MessageQueue;
@@ -11,6 +8,7 @@ pub type MessagePort = u8;
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Message {
   pub port: MessagePort,
+  pub edge: EdgeIndex,
   pub data: MessageData,
 }
 
@@ -19,7 +17,7 @@ pub enum MessageData {
   BGPMessage { path: Vec<ComputerID> },
 }
 
-pub type MessageQueue = HashMap<EdgeIndex, Vec<Message>>;
+pub type MessageQueue = Vec<Message>;
 
 #[derive(Clone)]
 pub struct Computer {
@@ -44,23 +42,8 @@ impl Computer {
     Computer {
       id,
       run,
-      ingoing: HashMap::new(),
-      outgoing: HashMap::new(),
-    }
-  }
-}
-
-pub fn queue_outgoing(
-  queue: &mut MessageQueue,
-  via_edge: EdgeIndex,
-  message: Message,
-) {
-  match queue.entry(via_edge) {
-    Entry::Occupied(mut entry) => {
-      entry.get_mut().push(message);
-    }
-    Entry::Vacant(_) => {
-      queue.insert(via_edge, vec![message]);
+      ingoing: vec![],
+      outgoing: vec![],
     }
   }
 }
