@@ -29,8 +29,8 @@ impl fmt::Display for World {
 impl World {
   /// Run a tick on the world
   pub fn tick(&mut self) {
-    self.tick_incoming_queues();
     self.tick_run_computers();
+    self.tick_incoming_queues();
     self.tick_deliver_messages(true);
   }
 
