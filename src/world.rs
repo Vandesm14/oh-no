@@ -30,6 +30,7 @@ impl fmt::Display for World {
 }
 
 impl World {
+  /// Run a tick on the world
   pub fn tick(&mut self) {
     // Run each computer
     self.graph.node_indices().for_each(|node_index| {
@@ -76,6 +77,7 @@ impl World {
     });
   }
 
+  /// Adds a computer to the world
   pub fn add_computer(&mut self, run: ComputerRun) -> NodeIndex {
     let computer = Computer::new(self.computers.len(), run);
     let node_index = self.graph.add_node(computer.id);
@@ -85,10 +87,12 @@ impl World {
     node_index
   }
 
+  /// Connects two computers by their node indecies
   pub fn connect_computers(&mut self, id1: NodeIndex, id2: NodeIndex) {
     self.graph.add_edge(id1, id2, ());
   }
 
+  /// Returns a list of edges for a given computer ID
   pub fn edge_ids(&self, computer_id: ComputerID) -> Option<Vec<EdgeIndex>> {
     let node_index = self.addressbook.get_by_left(&computer_id);
 
@@ -97,5 +101,21 @@ impl World {
     }
 
     None
+  }
+
+  /// Returns a clone of a computer by its ID
+  pub fn get_computer(
+    &self,
+    computer_id: ComputerID,
+  ) -> Result<Computer, &'static str> {
+    let computer = self.computers.get(computer_id).expect("Computer not found");
+    let cloned = (computer.borrow()).clone();
+
+    Ok(cloned)
+  }
+
+  /// Converts a NodeIndex into a ComputerID
+  pub fn node_index_to_computer_id(&self, node_index: NodeIndex) -> ComputerID {
+    *self.addressbook.get_by_right(&node_index).unwrap()
   }
 }

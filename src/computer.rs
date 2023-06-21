@@ -21,6 +21,7 @@ pub enum MessageData {
 
 pub type MessageQueue = HashMap<EdgeIndex, Vec<Message>>;
 
+#[derive(Clone)]
 pub struct Computer {
   pub id: ComputerID,
   pub run: ComputerRun,
