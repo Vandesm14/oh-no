@@ -51,8 +51,11 @@ impl World {
       let edges = self.edge_ids(computer_id);
       let computer = self.computers.get_mut(computer_id).unwrap();
 
-      let changes = (computer.borrow().run)(&computer.borrow(), edges);
-      computer.borrow_mut().outgoing = changes;
+      let (queue, data) = (computer.borrow().run)(&computer.borrow(), edges);
+      computer.borrow_mut().outgoing = queue;
+      if let Some(data) = data {
+        computer.borrow_mut().data = data
+      };
     });
 
     // What I want it to be...

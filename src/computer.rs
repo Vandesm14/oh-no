@@ -1,8 +1,11 @@
 use petgraph::prelude::*;
 use std::fmt;
 
+pub type ComputerRun =
+  fn(computer: &Computer, Vec<EdgeIndex>) -> ComputerRunReturn;
+pub type ComputerRunReturn = (MessageQueue, Option<ComputerData>);
+
 pub type ComputerID = usize;
-pub type ComputerRun = fn(computer: &Computer, Vec<EdgeIndex>) -> MessageQueue;
 pub type MessagePort = u8;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
