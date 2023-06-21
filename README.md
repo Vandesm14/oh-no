@@ -4,4 +4,4 @@ You get a page at 2am in the morning. The servers are down. You feel a sense of 
 
 ## But wait!
 
-~~It was all a dream.~~ Instead of worrying about *what if*, you can be sure that your infrastructure is safe and sound. With **Oh No**, you can experiment with different failure scenarios and test your core algorithms. The mimimal core primitives allow you to build your own infra graph, failure scenarios, test your code. You can test any prorgamming language, as long as it's Rust.
+~~It was all a dream.~~ Instead of worrying about *what if*, you can be sure that your infrastructure is safe and sound. With **Oh No**, you can experiment with different failure scenarios and test your core algorithms. The mimimal core primitives allow you to build your own infra graph, failure scenarios, and test your code. You can test any prorgamming language, as long as it's Rust.
