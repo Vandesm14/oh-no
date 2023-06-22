@@ -20,35 +20,6 @@ pub enum MessageData {
 
 pub type MessageQueue = Vec<Message>;
 
-// #[derive(Clone)]
-// pub struct Computer {
-//   pub id: ComputerID,
-//   pub run: ComputerRun,
-//   pub incoming: MessageQueue,
-//   pub outgoing: MessageQueue,
-// }
-
-// impl fmt::Debug for Computer {
-//   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//     let mut debugged = f.debug_struct("Computer");
-//     debugged.field("id", &self.id);
-//     debugged.field("incoming", &self.incoming);
-//     debugged.field("outgoing", &self.outgoing);
-//     debugged.finish()
-//   }
-// }
-
-// impl Computer {
-//   pub fn new(id: ComputerID, run: ComputerRun) -> Self {
-//     Computer {
-//       id,
-//       run,
-//       incoming: vec![],
-//       outgoing: vec![],
-//     }
-//   }
-// }
-
 pub trait Computer: fmt::Debug {
   fn id(&self) -> ComputerId;
   fn id_mut(&mut self) -> &mut ComputerId;
