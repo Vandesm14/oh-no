@@ -1,7 +1,10 @@
 //!
 
 use bevy::{
-  app::ScheduleRunnerPlugin, log::LogPlugin, prelude::*, utils::HashSet,
+  app::ScheduleRunnerPlugin,
+  log::LogPlugin,
+  prelude::*,
+  utils::{HashMap, HashSet},
 };
 use oh_no::*;
 use std::time::Duration;
@@ -26,28 +29,34 @@ fn main() {
 }
 
 fn setup_system(mut commands: Commands) {
-  let e1 = commands
-    .spawn((
-      ConnectedTo::default(),
-      ComputerBundle {
-        outgoing: OutgoingQueue(vec![Message {
+  let e1 =
+    commands
+      .spawn(ComputerBundle::default().with_id(0).with_messages(vec![
+        Message {
           recipient_id: 1,
           ..Default::default()
-        }]),
-        ..ComputerBundle::with_id(0)
-      },
-    ))
-    .id();
+        },
+      ]))
+      .id();
   let e2 = commands
-    .spawn((
-      ComputerBundle::with_id(1),
-      ConnectedTo::default(),
-      Counter::default(),
-    ))
+    .spawn((ComputerBundle::default().with_id(1), Counter::default()))
     .id();
 
-  commands.entity(e1).insert(ConnectedTo(HashSet::from([e2])));
-  commands.entity(e2).insert(ConnectedTo(HashSet::from([e1])));
+  connect_entities(&mut commands, &[(e1, e2)])
+}
+
+fn connect_entities(commands: &mut Commands, entities: &[(Entity, Entity)]) {
+  let mut connections: HashMap<Entity, Vec<Entity>> = HashMap::new();
+  for (from, to) in entities {
+    connections.entry(*from).or_insert_with(Vec::new).push(*to);
+    connections.entry(*to).or_insert_with(Vec::new).push(*from);
+  }
+
+  for (from, to) in connections {
+    commands
+      .entity(from)
+      .insert(ConnectedTo(HashSet::from_iter(to.into_iter())));
+  }
 }
 
 #[allow(clippy::type_complexity)]

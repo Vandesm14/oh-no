@@ -1,4 +1,4 @@
-use crate::MessageQueue;
+use crate::{ConnectedTo, Message, MessageQueue};
 use bevy::prelude::*;
 
 /// A queue for incoming (received) messages
@@ -23,14 +23,19 @@ pub struct ComputerBundle {
   pub id: ComputerId,
   pub incoming: IncomingQueue,
   pub outgoing: OutgoingQueue,
+  pub connected_to: ConnectedTo,
 }
 
 impl ComputerBundle {
-  /// Create a new computer bundle with the given ID
-  pub fn with_id(id: usize) -> Self {
-    Self {
-      id: ComputerId(id),
-      ..Default::default()
-    }
+  /// Adds an id to a [`Computer`]
+  pub fn with_id(mut self, id: usize) -> Self {
+    self.id = ComputerId(id);
+    self
+  }
+
+  /// Adds a counter to a [`Computer`]
+  pub fn with_messages(mut self, messages: Vec<Message>) -> Self {
+    self.outgoing = OutgoingQueue(messages);
+    self
   }
 }
