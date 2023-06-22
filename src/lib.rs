@@ -1,7 +1,7 @@
 mod components;
-mod computer;
 mod connected_to;
+mod message;
 
 pub use components::*;
-pub use computer::*;
 pub use connected_to::*;
+pub use message::*;
