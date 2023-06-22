@@ -24,20 +24,20 @@ fn main() {
 fn setup_system(mut commands: Commands) {
   let e1 = commands
     .spawn((
-      ComputerId(0),
       ConnectedTo::default(),
-      OutgoingQueue(vec![Message {
-        recipient_id: 1,
-        ..Default::default()
-      }]),
+      ComputerBundle {
+        outgoing: OutgoingQueue(vec![Message {
+          recipient_id: 1,
+          ..Default::default()
+        }]),
+        ..ComputerBundle::with_id(0)
+      },
     ))
     .id();
   let e2 = commands
     .spawn((
-      ComputerId(1),
+      ComputerBundle::with_id(1),
       ConnectedTo::default(),
-      IncomingQueue::default(),
-      OutgoingQueue::default(),
       Counter::default(),
     ))
     .id();
@@ -68,12 +68,12 @@ fn propagate_messages_system(
   for mut sender in senders.iter_mut() {
     for message in sender.drain(0..) {
       let recipient_id = message.recipient_id;
-      let mut entity = receivers
+      if let Some(mut entity) = receivers
         .iter_mut()
         .find(|entity| entity.1 .0 == recipient_id)
-        .unwrap();
-
-      entity.0.push(message);
+      {
+        entity.0.push(message);
+      }
     }
   }
 }

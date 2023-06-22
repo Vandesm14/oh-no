@@ -16,3 +16,19 @@ pub struct Counter(pub usize);
 /// Denotesa computer with an ID
 #[derive(Debug, Clone, PartialEq, Eq, Default, Deref, DerefMut, Component)]
 pub struct ComputerId(pub usize);
+
+#[derive(Debug, Clone, PartialEq, Eq, Default, Bundle)]
+pub struct ComputerBundle {
+  pub id: ComputerId,
+  pub incoming: IncomingQueue,
+  pub outgoing: OutgoingQueue,
+}
+
+impl ComputerBundle {
+  pub fn with_id(id: usize) -> Self {
+    Self {
+      id: ComputerId(id),
+      ..Default::default()
+    }
+  }
+}
