@@ -127,10 +127,7 @@ impl World {
   fn add_computer_data_dir(
     computer_id: ComputerID,
   ) -> Result<(), std::io::Error> {
-    let result = Self::add_computers_dir();
-    if result.is_err() {
-      return result;
-    }
+    Self::add_computers_dir()?;
 
     match fs::read_dir(format!("./computers/{}", computer_id)) {
       Err(_) => fs::create_dir(format!("./computers/{}", computer_id)),
