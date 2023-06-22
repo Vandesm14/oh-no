@@ -1,4 +1,3 @@
-#![warn(missing_docs)]
 #![forbid(unsafe_code)]
 
 mod components;
