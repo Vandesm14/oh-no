@@ -4,23 +4,7 @@
 #![forbid(unsafe_code)]
 
 use bevy::{prelude::*, utils::HashSet};
-use oh_no::{ConnectedTo, ConnectedToPlugin, Message, MessageQueue};
-
-/// A queue for incoming (received) messages
-#[derive(Debug, Clone, PartialEq, Eq, Default, Deref, DerefMut, Component)]
-pub struct IncomingQueue(MessageQueue);
-
-/// A queue for outgoing (sent) messages
-#[derive(Debug, Clone, PartialEq, Eq, Default, Deref, DerefMut, Component)]
-pub struct OutgoingQueue(MessageQueue);
-
-/// A counter
-#[derive(Debug, Clone, PartialEq, Eq, Default, Deref, DerefMut, Component)]
-pub struct Counter(usize);
-
-/// Denotesa computer with an ID
-#[derive(Debug, Clone, PartialEq, Eq, Default, Deref, DerefMut, Component)]
-pub struct ComputerId(usize);
+use oh_no::*;
 
 fn main() {
   let mut app = App::new();
