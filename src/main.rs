@@ -1,13 +1,20 @@
 //!
 
-use bevy::{prelude::*, utils::HashSet};
+use bevy::{
+  app::ScheduleRunnerPlugin, log::LogPlugin, prelude::*, utils::HashSet,
+};
 use oh_no::*;
+use std::time::Duration;
 
 fn main() {
   let mut app = App::new();
 
   app
     .add_plugins(ConnectedToPlugin)
+    .add_plugins(MinimalPlugins.set(ScheduleRunnerPlugin::run_loop(
+      Duration::from_secs_f64(1.0 / 60.0),
+    )))
+    .add_plugins(LogPlugin::default())
     .add_systems(Startup, setup_system)
     .add_systems(
       Update,
@@ -59,17 +66,28 @@ fn log_system(
 }
 
 fn propagate_messages_system(
-  mut senders: Query<&mut OutgoingQueue>,
-  mut receivers: Query<(&mut IncomingQueue, &ComputerId)>,
+  mut senders: Query<(&mut OutgoingQueue, &ConnectedTo)>,
+  mut receivers: Query<(Entity, &mut IncomingQueue, &ComputerId)>,
 ) {
-  for mut sender in senders.iter_mut() {
-    for message in sender.drain(0..) {
+  for (mut outgoing, connected_to) in senders.iter_mut() {
+    for message in outgoing.drain(0..) {
       let recipient_id = message.recipient_id;
-      if let Some(mut entity) = receivers
+
+      if let Some((entity, mut incoming, _)) = receivers
         .iter_mut()
-        .find(|entity| entity.1 .0 == recipient_id)
+        .find(|(_, _, computer_id)| computer_id.0 == recipient_id)
       {
-        entity.0.push(message);
+        // Check if the recipient is connected to the sender
+        if connected_to.contains(&entity) {
+          incoming.0.push(message);
+        } else {
+          info!(
+            "Computer {} is not connected to computer {}",
+            recipient_id, message.port
+          )
+        }
+      } else {
+        info!("Computer {} does not exist", recipient_id)
       }
     }
   }
