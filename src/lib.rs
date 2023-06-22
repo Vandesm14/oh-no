@@ -1,3 +1,6 @@
+#![warn(missing_docs)]
+#![forbid(unsafe_code)]
+
 mod components;
 mod connected_to;
 mod message;

@@ -1,8 +1,5 @@
 //!
 
-#![forbid(missing_docs)]
-#![forbid(unsafe_code)]
-
 use bevy::{prelude::*, utils::HashSet};
 use oh_no::*;
 

@@ -13,10 +13,11 @@ pub struct OutgoingQueue(pub MessageQueue);
 #[derive(Debug, Clone, PartialEq, Eq, Default, Deref, DerefMut, Component)]
 pub struct Counter(pub usize);
 
-/// Denotesa computer with an ID
+/// Denotes a computer with an ID
 #[derive(Debug, Clone, PartialEq, Eq, Default, Deref, DerefMut, Component)]
 pub struct ComputerId(pub usize);
 
+/// The essential components of a computer
 #[derive(Debug, Clone, PartialEq, Eq, Default, Bundle)]
 pub struct ComputerBundle {
   pub id: ComputerId,
@@ -25,6 +26,7 @@ pub struct ComputerBundle {
 }
 
 impl ComputerBundle {
+  /// Create a new computer bundle with the given ID
   pub fn with_id(id: usize) -> Self {
     Self {
       id: ComputerId(id),
