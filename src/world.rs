@@ -1,12 +1,12 @@
 use petgraph::prelude::*;
-use std::{cell::RefCell, fmt, fs};
+use std::{cell::{RefCell, Ref}, fmt, fs};
 
-use crate::{Computer, ComputerID, ComputerRun, MessageQueue};
+use crate::{Computer, ComputerId, MessageQueue};
 
 #[derive(Default, Debug)]
 pub struct World {
-  graph: UnGraph<ComputerID, ()>,
-  computers: Vec<RefCell<Computer>>,
+  graph: UnGraph<ComputerId, ()>,
+  computers: Vec<RefCell<Box<dyn Computer>>>,
 }
 
 impl fmt::Display for World {
@@ -17,10 +17,10 @@ impl fmt::Display for World {
       writeln!(
         f,
         "{}: {} connections | messages ({} in, {} out)",
-        computer.borrow().id,
+        computer.borrow().id(),
         self.graph.neighbors(i).count(),
-        computer.borrow().incoming.len(),
-        computer.borrow().outgoing.len()
+        computer.borrow().incoming().len(),
+        computer.borrow().outgoing().len()
       )
     })
   }
@@ -38,9 +38,9 @@ impl World {
   pub fn tick_incoming_queues(&mut self) {
     self.graph.node_indices().for_each(|node_index| {
       let computer_id = node_index.index();
-      let computer = self.computers.get(computer_id).unwrap();
+      let mut computer = self.computers.get_mut(computer_id).unwrap().borrow_mut();
 
-      computer.borrow_mut().incoming = MessageQueue::new();
+      *computer.incoming_mut() = MessageQueue::new();
     });
   }
 
@@ -49,11 +49,9 @@ impl World {
     self.graph.node_indices().for_each(|node_index| {
       let computer_id = node_index.index();
       let edges = self.edge_ids(computer_id);
-      let computer = self.computers.get_mut(computer_id).unwrap();
+      let mut computer = self.computers.get_mut(computer_id).unwrap().borrow_mut();
 
-      let queue = (computer.borrow().run)(&computer.borrow(), edges);
-      let mut computer_mut = computer.borrow_mut();
-      computer_mut.outgoing = queue;
+      computer.run(edges)
     });
 
     // What I want it to be...
@@ -68,10 +66,10 @@ impl World {
   pub fn tick_deliver_messages(&mut self, clear_outgoing: bool) {
     self.graph.node_indices().for_each(|node_index| {
       let computer_id = node_index.index();
-      let computer = self.computers.get(computer_id).unwrap();
+      let mut computer = self.computers.get(computer_id).unwrap().borrow_mut();
 
       // Run through all outgoing messages
-      computer.borrow_mut().outgoing.iter().for_each(|message| {
+      computer.outgoing_mut().iter().for_each(|message| {
         let edge = self.graph.edge_endpoints(message.edge);
 
         if let Some(edge) = edge {
@@ -81,16 +79,15 @@ impl World {
             edge.1.index()
           };
 
-          let recipient = self.computers.get(recipient_id).unwrap();
-
-          recipient.borrow_mut().incoming.push(message.clone());
+          let mut recipient = self.computers.get(recipient_id).unwrap().borrow_mut();
+          recipient.incoming_mut().push(message.clone());
         }
 
         // If not, drop the message
       });
 
       if clear_outgoing {
-        computer.borrow_mut().outgoing = MessageQueue::new();
+        *computer.outgoing_mut() = MessageQueue::new();
       }
     });
   }
@@ -99,16 +96,16 @@ impl World {
   pub fn tick_outgoing_queues(&mut self) {
     self.graph.node_indices().for_each(|node_index| {
       let computer_id = node_index.index();
-      let computer = self.computers.get(computer_id).unwrap();
+      let mut computer = self.computers.get(computer_id).unwrap().borrow_mut();
 
-      computer.borrow_mut().outgoing = MessageQueue::new();
+      *computer.outgoing_mut() = MessageQueue::new();
     });
   }
 
   /// Adds a computer to the world
-  pub fn add_computer(&mut self, run: ComputerRun) -> ComputerID {
-    let computer = Computer::new(self.computers.len(), run);
-    let computer_id = computer.id;
+  pub fn add_computer(&mut self, mut computer: Box<dyn Computer>) -> ComputerId {
+    let computer_id = self.computers.len();
+    *computer.id_mut() = computer_id;
 
     self.graph.add_node(computer_id);
     self.computers.push(RefCell::new(computer));
@@ -125,7 +122,7 @@ impl World {
   }
 
   fn add_computer_data_dir(
-    computer_id: ComputerID,
+    computer_id: ComputerId,
   ) -> Result<(), std::io::Error> {
     Self::add_computers_dir()?;
 
@@ -136,26 +133,26 @@ impl World {
   }
 
   /// Connects two computers by their node indecies
-  pub fn connect_computers(&mut self, id1: ComputerID, id2: ComputerID) {
+  pub fn connect_computers(&mut self, id1: ComputerId, id2: ComputerId) {
     self
       .graph
       .add_edge(NodeIndex::new(id1), NodeIndex::new(id2), ());
   }
 
   /// Returns a list of edges for a given computer ID
-  pub fn edge_ids(&self, computer_id: ComputerID) -> Vec<EdgeIndex> {
+  pub fn edge_ids(&self, computer_id: ComputerId) -> Vec<EdgeIndex> {
     let node_index = NodeIndex::new(computer_id);
 
     self.graph.edges(node_index).map(|e| e.id()).collect()
   }
 
   /// Returns a clone of a computer by its ID
-  pub fn get_computer(
+  pub fn computer(
     &self,
-    computer_id: ComputerID,
-  ) -> Result<Computer, &'static str> {
+    computer_id: ComputerId,
+  ) -> Result<Ref<Box<dyn Computer>>, &'static str> {
     let computer = self.computers.get(computer_id).expect("Computer not found");
 
-    Ok(computer.to_owned().into_inner())
+    Ok(computer.to_owned().borrow())
   }
 }
