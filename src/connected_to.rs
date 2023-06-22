@@ -37,7 +37,7 @@ pub enum ConnectedToSet {
   RemoveDisjoint,
 }
 
-/// A connection between and entity and one or more entities.
+/// A connection between an entity and one or more entities.
 #[derive(
   Debug,
   Clone,
