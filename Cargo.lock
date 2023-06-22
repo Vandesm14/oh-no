@@ -2354,7 +2354,6 @@ name = "oh-no"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "petgraph",
 ]
 
 [[package]]
