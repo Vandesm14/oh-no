@@ -56,9 +56,10 @@ impl World {
 
     // What I want it to be...
     // self.computers.iter_mut().for_each(|computer| {
-    //   let edges = self.edge_ids(computer.borrow().id);
+    //   let edges = self.edge_ids(computer.borrow().id());
+    //   let mut computer = self.computers.get_mut(computer.borrow().id()).unwrap().borrow_mut();
 
-    //   (computer.borrow().run)(&computer.borrow(), edges);
+    //   computer.run(edges)
     // });
   }
 
