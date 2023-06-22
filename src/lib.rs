@@ -1,7 +1,5 @@
-mod behaviors;
 mod computer;
-mod world;
+mod connected_to;
 
-pub use behaviors::*;
 pub use computer::*;
-pub use world::*;
+pub use connected_to::*;
