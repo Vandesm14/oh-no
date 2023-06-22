@@ -18,11 +18,11 @@ impl Plugin for ConnectedToPlugin {
       .register_type::<ConnectedTo>();
 
     app //
-      .configure_set(PostUpdate, ConnectedToSet::RemoveDisjoint);
+      .configure_set(PreUpdate, ConnectedToSet::RemoveDisjoint);
 
     app //
       .add_systems(
-        PostUpdate,
+        PreUpdate,
         remove_disjoint.in_set(ConnectedToSet::RemoveDisjoint),
       );
   }
