@@ -5,6 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.dev]
+opt-level = 1
+package."*" = { opt-level = 3 }
+
 [dependencies.bevy]
 git = "https://github.com/bevyengine/bevy"
 rev = "bb59509d44d2979e4b91bd0f998c047f16b89dd0"
