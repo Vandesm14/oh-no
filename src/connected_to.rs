@@ -39,16 +39,7 @@ pub enum ConnectedToSet {
 
 /// A connection between an entity and one or more entities.
 #[derive(
-  Debug,
-  Clone,
-  PartialEq,
-  Eq,
-  Default,
-  Deref,
-  DerefMut,
-  Reflect,
-  FromReflect,
-  Component,
+  Debug, Clone, PartialEq, Eq, Default, Deref, DerefMut, Reflect, Component,
 )]
 #[reflect(Debug, PartialEq, Default, Component)]
 pub struct ConnectedTo(pub HashSet<Entity>);
