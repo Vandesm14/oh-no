@@ -1,4 +1,5 @@
 use bevy::{app::ScheduleRunnerPlugin, log::LogPlugin, prelude::*};
+use comfy_table::Table;
 use oh_no::*;
 use std::time::Duration;
 
@@ -32,9 +33,25 @@ fn log_system(
     &OutgoingQueue,
   )>,
 ) {
-  for entity in query.iter() {
-    println!("{:?}", entity);
-  }
+  let mut table = Table::new();
+  table.set_header(vec!["ID", "Counter", "Incoming", "Outgoing"]);
+
+  query
+    .iter()
+    .for_each(|(_, id, counter, incoming, outgoing)| {
+      table.add_row(vec![
+        format!("{:?}", id.0),
+        if let Some(counter) = counter {
+          format!("{:?}", counter)
+        } else {
+          "None".to_string()
+        },
+        format!("{:?}", incoming),
+        format!("{:?}", outgoing),
+      ]);
+    });
+
+  println!("{}", table);
 }
 
 fn propagate_messages_system(

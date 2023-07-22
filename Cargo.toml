@@ -9,5 +9,8 @@ edition = "2021"
 opt-level = 1
 package."*" = { opt-level = 3 }
 
+[dependencies]
+comfy-table = "7.0.1"
+
 [dependencies.bevy]
 version = "0.11"
