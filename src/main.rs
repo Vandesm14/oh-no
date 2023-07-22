@@ -1,11 +1,4 @@
-//!
-
-use bevy::{
-  app::ScheduleRunnerPlugin,
-  log::LogPlugin,
-  prelude::*,
-  utils::{HashMap, HashSet},
-};
+use bevy::{app::ScheduleRunnerPlugin, log::LogPlugin, prelude::*};
 use oh_no::*;
 use std::time::Duration;
 
@@ -18,45 +11,15 @@ fn main() {
       Duration::from_secs_f64(1.0 / 60.0),
     )))
     .add_plugins(LogPlugin::default())
-    .add_systems(Startup, setup_system)
+    .configure_set(Update, ComputerSet::Propagation)
     .add_systems(
       Update,
-      (propagate_messages_system, rom_count_on_incoming_system).chain(),
+      propagate_messages_system.in_set(ComputerSet::Propagation),
     )
-    .add_systems(PostUpdate, log_system);
+    .add_systems(PostUpdate, log_system)
+    .add_plugins(CountOnMessage);
 
   app.update();
-}
-
-fn setup_system(mut commands: Commands) {
-  let e1 =
-    commands
-      .spawn(ComputerBundle::default().with_id(0).with_messages(vec![
-        Message {
-          recipient_id: 1,
-          ..Default::default()
-        },
-      ]))
-      .id();
-  let e2 = commands
-    .spawn((ComputerBundle::default().with_id(1), Counter::default()))
-    .id();
-
-  connect_entities(&mut commands, &[(e1, e2)])
-}
-
-fn connect_entities(commands: &mut Commands, entities: &[(Entity, Entity)]) {
-  let mut connections: HashMap<Entity, Vec<Entity>> = HashMap::new();
-  for (from, to) in entities {
-    connections.entry(*from).or_insert_with(Vec::new).push(*to);
-    connections.entry(*to).or_insert_with(Vec::new).push(*from);
-  }
-
-  for (from, to) in connections {
-    commands
-      .entity(from)
-      .insert(ConnectedTo(HashSet::from_iter(to.into_iter())));
-  }
 }
 
 #[allow(clippy::type_complexity)]
@@ -65,8 +28,8 @@ fn log_system(
     Entity,
     &ComputerId,
     Option<&Counter>,
-    Option<&IncomingQueue>,
-    Option<&OutgoingQueue>,
+    &IncomingQueue,
+    &OutgoingQueue,
   )>,
 ) {
   for entity in query.iter() {
@@ -99,13 +62,5 @@ fn propagate_messages_system(
         info!("Computer {} does not exist", recipient_id)
       }
     }
-  }
-}
-
-fn rom_count_on_incoming_system(
-  mut counters: Query<(&IncomingQueue, &mut Counter)>,
-) {
-  for (incoming, mut counter) in counters.iter_mut() {
-    counter.0 += incoming.len();
   }
 }

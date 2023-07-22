@@ -88,6 +88,24 @@ fn remove_disjoint(
   }
 }
 
+/// Connects two entities.
+pub fn connect_entities(
+  commands: &mut Commands,
+  entities: &[(Entity, Entity)],
+) {
+  let mut connections: HashMap<Entity, Vec<Entity>> = HashMap::new();
+  for (from, to) in entities {
+    connections.entry(*from).or_insert_with(Vec::new).push(*to);
+    connections.entry(*to).or_insert_with(Vec::new).push(*from);
+  }
+
+  for (from, to) in connections {
+    commands
+      .entity(from)
+      .insert(ConnectedTo(HashSet::from_iter(to.into_iter())));
+  }
+}
+
 #[cfg(test)]
 mod test {
   use super::*;
