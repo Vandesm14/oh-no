@@ -38,7 +38,7 @@ async fn main() -> rune::Result<()> {
 
   let computer_a = world.add_computer(Computer { vm: vm.clone() });
   let computer_b = world.add_computer(Computer { vm: vm.clone() });
-  let computer_c = world.add_computer(Computer { vm: vm.clone() });
+  let computer_c = world.add_computer(Computer { vm });
 
   world.connect(computer_a, computer_b);
   world.connect(computer_b, computer_c);
