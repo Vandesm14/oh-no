@@ -7,16 +7,18 @@ use rune::{
 };
 
 #[pollster::main]
-async fn main() {
+async fn main() -> rune::Result<()> {
+  let m = module()?;
   let mut world = World::default();
 
-  let context = Context::with_default_modules().unwrap();
+  let mut context = Context::with_default_modules()?;
+  context.install(m)?;
   let runtime = Arc::new(context.runtime());
 
   let mut sources = Sources::new();
   sources.insert(Source::new(
     "rom",
-    std::fs::read_to_string("roms/hello.rn").unwrap(),
+    std::fs::read_to_string("roms/hello.rn")?,
   ));
 
   let mut diagnostics = Diagnostics::new();
@@ -28,10 +30,10 @@ async fn main() {
 
   if !diagnostics.is_empty() {
     let mut writer = StandardStream::stderr(ColorChoice::Auto);
-    diagnostics.emit(&mut writer, &sources).unwrap();
+    diagnostics.emit(&mut writer, &sources)?;
   }
 
-  let unit = result.unwrap();
+  let unit = result?;
   let vm = Vm::new(runtime.clone(), Arc::new(unit));
 
   let computer_a = world.add_computer(Computer { vm: vm.clone() });
@@ -42,4 +44,6 @@ async fn main() {
   world.connect(computer_b, computer_c);
 
   world.update();
+
+  Ok(())
 }
