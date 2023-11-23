@@ -37,9 +37,15 @@ async fn main() -> rune::Result<()> {
   let unit = result?;
   let vm = Vm::new(runtime.clone(), Arc::new(unit));
 
-  let computer_a = world.add_computer(Computer { vm: vm.clone() });
-  let computer_b = world.add_computer(Computer { vm: vm.clone() });
-  let computer_c = world.add_computer(Computer { vm });
+  let computer_a = world.add_computer(Computer {
+    vm: vm.clone(),
+    id: 0,
+  });
+  let computer_b = world.add_computer(Computer {
+    vm: vm.clone(),
+    id: 1,
+  });
+  let computer_c = world.add_computer(Computer { vm, id: 2 });
 
   world.connect(computer_a, computer_b);
   world.connect(computer_b, computer_c);

@@ -95,11 +95,14 @@ impl World {
 pub struct Computer {
   // pub events: Vec<Event>,
   pub vm: Vm,
+
+  /// The computer's unique identifier.
+  pub id: ComputerId,
 }
 
 impl Computer {
   pub fn update(&mut self) -> Result<(), VmError> {
-    <()>::from_value(self.vm.call(["main"], (External { value: 42 },))?)
+    <()>::from_value(self.vm.call(["main"], (External { value: self.id },))?)
   }
 }
 
