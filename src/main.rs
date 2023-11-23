@@ -6,11 +6,12 @@ use rune::{
   Context, Diagnostics, Source, Sources, Vm,
 };
 
-#[pollster::main]
+#[tokio::main]
 async fn main() -> rune::Result<()> {
   let m = module()?;
   let mut world = World::default();
 
+  // TODO: switch to Context::new() and add modules manually
   let mut context = Context::with_default_modules()?;
   context.install(m)?;
   let runtime = Arc::new(context.runtime());
