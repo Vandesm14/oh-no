@@ -94,10 +94,11 @@ impl World {
       })
       .collect();
 
-    messages.into_par_iter().try_for_each(|message| {
-      let channel = self.computer(message.to)?.incoming();
-      channel.send(message).ok();
-      None
+    messages.into_par_iter().for_each(|message| {
+      if let Some(computer) = self.computer(message.to) {
+        let channel = computer.incoming();
+        channel.send(message).ok();
+      }
     });
   }
 }
