@@ -14,6 +14,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
   world.connect(computer_b, computer_c);
 
   world.update();
+  world.update();
 
   Ok(())
 }
@@ -36,9 +37,13 @@ impl Computer for MyPC {
     &mut self,
     incoming: Vec<Message>,
   ) -> Result<Vec<Message>, Box<dyn Error>> {
-    println!("Hello from computer {}", self.id);
+    println!("{}: {:?}", self.id, incoming);
 
-    Ok(vec![])
+    Ok(vec![Message {
+      data: vec![],
+      from: self.id,
+      to: self.id,
+    }])
   }
 }
 

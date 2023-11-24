@@ -1,5 +1,7 @@
 #![forbid(unsafe_code)]
 
+use std::collections::HashMap;
+
 use petgraph::prelude::*;
 
 pub type ComputerId = u32;
@@ -7,6 +9,8 @@ pub type ComputerId = u32;
 #[derive(Debug, Default)]
 pub struct World {
   network: UnGraph<Box<dyn Computer>, (), ComputerId>,
+
+  message_queue: HashMap<ComputerId, Vec<Message>>,
 }
 
 impl World {
@@ -79,9 +83,26 @@ impl World {
   }
 
   pub fn update(&mut self) {
+    let mut new_queue: HashMap<ComputerId, Messages> = HashMap::new();
+
     for computer in self.network.node_weights_mut() {
-      computer.update(vec![]);
+      let incoming = self
+        .message_queue
+        .remove(&computer.id())
+        .unwrap_or_default();
+      let outgoing = computer.update(incoming);
+
+      if let Ok(outgoing) = outgoing {
+        for message in outgoing {
+          new_queue
+            .entry(message.to)
+            .or_insert_with(Vec::new)
+            .push(message);
+        }
+      }
     }
+
+    self.message_queue = new_queue;
   }
 }
 
@@ -91,6 +112,8 @@ pub struct Message {
   pub to: ComputerId,
   pub data: Vec<u8>,
 }
+
+type Messages = Vec<Message>;
 
 pub trait Computer: std::fmt::Debug {
   /// The computer's unique identifier.
