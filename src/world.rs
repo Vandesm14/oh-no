@@ -1,16 +1,11 @@
-#![forbid(unsafe_code)]
-
-use std::collections::HashMap;
-
 use petgraph::prelude::*;
+use rayon::prelude::*;
 
 pub type ComputerId = u32;
 
 #[derive(Debug, Default)]
 pub struct World {
   network: UnGraph<Box<dyn Computer>, (), ComputerId>,
-
-  message_queue: HashMap<ComputerId, Vec<Message>>,
 }
 
 impl World {
@@ -83,26 +78,27 @@ impl World {
   }
 
   pub fn update(&mut self) {
-    let mut new_queue: HashMap<ComputerId, Messages> = HashMap::new();
-
-    for computer in self.network.node_weights_mut() {
-      let incoming = self
-        .message_queue
-        .remove(&computer.id())
-        .unwrap_or_default();
-      let outgoing = computer.update(incoming);
-
-      if let Ok(outgoing) = outgoing {
-        for message in outgoing {
-          new_queue
-            .entry(message.to)
-            .or_insert_with(Vec::new)
-            .push(message);
+    let messages: Messages = self
+      .network
+      .node_weights_mut()
+      .collect::<Vec<_>>()
+      .par_iter_mut()
+      .flat_map(|computer| {
+        let outgoing = computer.update();
+        if let Ok(outgoing) = outgoing {
+          outgoing
+        } else {
+          vec![]
         }
-      }
-    }
+      })
+      .collect();
 
-    self.message_queue = new_queue;
+    messages.into_iter().for_each(|message| {
+      let computer = self.computer_mut(message.to).unwrap();
+      let mut incoming = computer.incoming().clone();
+      incoming.push(message);
+      computer.set_incoming(incoming);
+    });
   }
 }
 
@@ -113,9 +109,9 @@ pub struct Message {
   pub data: Vec<u8>,
 }
 
-type Messages = Vec<Message>;
+pub type Messages = Vec<Message>;
 
-pub trait Computer: std::fmt::Debug {
+pub trait Computer: std::fmt::Debug + Send {
   /// The computer's unique identifier.
   fn id(&self) -> ComputerId;
 
@@ -123,8 +119,11 @@ pub trait Computer: std::fmt::Debug {
   fn setup(&mut self) -> Result<(), Box<dyn std::error::Error>>;
 
   /// The update function of a computer.
-  fn update(
-    &mut self,
-    incoming: Vec<Message>,
-  ) -> Result<Vec<Message>, Box<dyn std::error::Error>>;
+  fn update(&mut self) -> Result<Vec<Message>, Box<dyn std::error::Error>>;
+
+  /// Gets incoming message queue.
+  fn incoming(&self) -> &Messages;
+
+  /// Sets incoming message queue.
+  fn set_incoming(&mut self, messages: Messages);
 }
