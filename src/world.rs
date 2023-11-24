@@ -1,51 +1,47 @@
 #![forbid(unsafe_code)]
 
 use petgraph::prelude::*;
-use rune::{runtime::VmError, Any, Vm};
-
-use crate::External;
 
 pub type ComputerId = u32;
 
 #[derive(Debug, Default)]
 pub struct World {
-  network: UnGraph<Computer, (), ComputerId>,
+  network: UnGraph<Box<dyn Computer>, (), ComputerId>,
 }
 
 impl World {
-  #[inline]
-  pub fn add_computer(&mut self, computer: Computer) -> ComputerId {
+  pub fn add_computer(&mut self, computer: Box<dyn Computer>) -> ComputerId {
     self.network.add_node(computer).index() as ComputerId
   }
 
-  #[inline]
   pub fn remove_computer(
     &mut self,
     computer_id: ComputerId,
-  ) -> Option<Computer> {
+  ) -> Option<Box<dyn Computer>> {
     self
       .network
       .remove_node(NodeIndex::new(computer_id as usize))
   }
 
-  #[inline]
-  pub fn computer(&self, computer_id: ComputerId) -> Option<&Computer> {
+  #[allow(clippy::borrowed_box)]
+  pub fn computer(
+    &self,
+    computer_id: ComputerId,
+  ) -> Option<&Box<dyn Computer>> {
     self
       .network
       .node_weight(NodeIndex::new(computer_id as usize))
   }
 
-  #[inline]
   pub fn computer_mut(
     &mut self,
     computer_id: ComputerId,
-  ) -> Option<&mut Computer> {
+  ) -> Option<&mut Box<dyn Computer>> {
     self
       .network
       .node_weight_mut(NodeIndex::new(computer_id as usize))
   }
 
-  #[inline]
   pub fn connect(
     &mut self,
     computer_id_a: ComputerId,
@@ -58,7 +54,6 @@ impl World {
     );
   }
 
-  #[inline]
   pub fn disconnect(
     &mut self,
     computer_id_a: ComputerId,
@@ -72,7 +67,6 @@ impl World {
     }
   }
 
-  #[inline]
   pub fn is_connected(
     &self,
     computer_id_a: ComputerId,
@@ -86,41 +80,30 @@ impl World {
 
   pub fn update(&mut self) {
     for computer in self.network.node_weights_mut() {
-      let result = computer.update();
-      println!("{}: {:#?}", computer.id, result);
+      computer.update(vec![]);
     }
   }
 }
 
-#[derive(Debug, Clone, Any)]
+#[derive(Debug, Clone)]
 pub struct Message {
   pub from: ComputerId,
   pub to: ComputerId,
   pub data: Vec<u8>,
 }
 
-#[derive(Debug)]
-pub struct Computer {
-  // pub events: Vec<Event>,
-  pub vm: Vm,
-
+pub trait Computer: std::fmt::Debug {
   /// The computer's unique identifier.
-  pub id: ComputerId,
+  fn id(&self) -> ComputerId;
 
-  /// The incoming queue of messages.
-  pub incoming: Vec<ComputerId>,
-}
+  /// The setup function of a computer.
+  fn setup(&mut self) -> Result<(), Box<dyn std::error::Error>>;
 
-impl Computer {
-  pub fn update(&mut self) -> Result<External, VmError> {
-    rune::from_value::<External>(self.vm.call(
-      ["main"],
-      (External {
-        id: self.id,
-        outgoing: vec![],
-      },),
-    )?)
-  }
+  /// The update function of a computer.
+  fn update(
+    &mut self,
+    incoming: Vec<Message>,
+  ) -> Result<Vec<Message>, Box<dyn std::error::Error>>;
 }
 
 // #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

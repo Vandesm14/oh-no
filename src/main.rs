@@ -1,10 +1,6 @@
-use std::{error::Error, sync::Arc};
+use std::error::Error;
 
 use oh_no::*;
-use rune::{
-  termcolor::{ColorChoice, StandardStream},
-  Context, Diagnostics, Source, Sources, Vm,
-};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -22,37 +18,32 @@ async fn main() -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
-fn create_computer(id: ComputerId) -> Result<Computer, Box<dyn Error>> {
-  let m = module()?;
+#[derive(Debug, Clone, Copy)]
+struct MyPC {
+  id: ComputerId,
+}
 
-  let mut context = Context::with_default_modules()?;
-  context.install(m)?;
-  let runtime = Arc::new(context.runtime()?);
-
-  let mut sources = Sources::new();
-  sources.insert(Source::new(
-    "rom",
-    std::fs::read_to_string("roms/hello.rn")?,
-  )?)?;
-
-  let mut diagnostics = Diagnostics::new();
-
-  let result = rune::prepare(&mut sources)
-    .with_context(&context)
-    .with_diagnostics(&mut diagnostics)
-    .build();
-
-  if !diagnostics.is_empty() {
-    let mut writer = StandardStream::stderr(ColorChoice::Auto);
-    diagnostics.emit(&mut writer, &sources)?;
+impl Computer for MyPC {
+  fn id(&self) -> ComputerId {
+    self.id
   }
 
-  let unit = result?;
-  let vm = Vm::new(runtime, Arc::new(unit));
+  fn setup(&mut self) -> Result<(), Box<dyn Error>> {
+    todo!()
+  }
 
-  Ok(Computer {
-    vm,
-    id,
-    incoming: vec![],
-  })
+  fn update(
+    &mut self,
+    incoming: Vec<Message>,
+  ) -> Result<Vec<Message>, Box<dyn Error>> {
+    println!("Hello from computer {}", self.id);
+
+    Ok(vec![])
+  }
+}
+
+fn create_computer(
+  id: ComputerId,
+) -> Result<Box<dyn Computer>, Box<dyn Error>> {
+  Ok(Box::new(MyPC { id }))
 }
