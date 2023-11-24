@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crossbeam_channel::Sender;
 use petgraph::prelude::*;
 use rayon::prelude::*;
