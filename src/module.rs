@@ -6,7 +6,7 @@ pub struct External {
   pub id: u32,
 
   #[rune(get, set)]
-  pub outgoing: Vec<u32>,
+  pub outgoing: Vec<(u32, u32, String)>,
 }
 
 pub fn module() -> Result<Module, ContextError> {

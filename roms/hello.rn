@@ -1,5 +1,5 @@
 pub async fn main(external) {
-  external.outgoing = [1, 2, 3];
+  external.outgoing = [(1, 2, "Hello!")];
 
   external
 }

@@ -50,5 +50,9 @@ fn create_computer(id: ComputerId) -> Result<Computer, Box<dyn Error>> {
   let unit = result?;
   let vm = Vm::new(runtime, Arc::new(unit));
 
-  Ok(Computer { vm, id })
+  Ok(Computer {
+    vm,
+    id,
+    incoming: vec![],
+  })
 }

@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use petgraph::prelude::*;
-use rune::{runtime::VmError, Vm};
+use rune::{runtime::VmError, Any, Vm};
 
 use crate::External;
 
@@ -92,6 +92,13 @@ impl World {
   }
 }
 
+#[derive(Debug, Clone, Any)]
+pub struct Message {
+  pub from: ComputerId,
+  pub to: ComputerId,
+  pub data: Vec<u8>,
+}
+
 #[derive(Debug)]
 pub struct Computer {
   // pub events: Vec<Event>,
@@ -99,6 +106,9 @@ pub struct Computer {
 
   /// The computer's unique identifier.
   pub id: ComputerId,
+
+  /// The incoming queue of messages.
+  pub incoming: Vec<ComputerId>,
 }
 
 impl Computer {
