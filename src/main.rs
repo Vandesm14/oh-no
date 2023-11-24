@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{error::Error, sync::Arc};
 
 use oh_no::*;
 use rune::{
@@ -7,20 +7,33 @@ use rune::{
 };
 
 #[tokio::main]
-async fn main() -> rune::Result<()> {
-  let m = module()?;
+async fn main() -> Result<(), Box<dyn Error>> {
   let mut world = World::default();
 
-  // TODO: switch to Context::new() and add modules manually
+  let computer_a = world.add_computer(create_computer(0)?);
+  let computer_b = world.add_computer(create_computer(1)?);
+  let computer_c = world.add_computer(create_computer(2)?);
+
+  world.connect(computer_a, computer_b);
+  world.connect(computer_b, computer_c);
+
+  world.update();
+
+  Ok(())
+}
+
+fn create_computer(id: ComputerId) -> Result<Computer, Box<dyn Error>> {
+  let m = module()?;
+
   let mut context = Context::with_default_modules()?;
   context.install(m)?;
-  let runtime = Arc::new(context.runtime());
+  let runtime = Arc::new(context.runtime()?);
 
   let mut sources = Sources::new();
   sources.insert(Source::new(
     "rom",
     std::fs::read_to_string("roms/hello.rn")?,
-  ));
+  )?)?;
 
   let mut diagnostics = Diagnostics::new();
 
@@ -35,22 +48,7 @@ async fn main() -> rune::Result<()> {
   }
 
   let unit = result?;
-  let vm = Vm::new(runtime.clone(), Arc::new(unit));
+  let vm = Vm::new(runtime, Arc::new(unit));
 
-  let computer_a = world.add_computer(Computer {
-    vm: vm.clone(),
-    id: 0,
-  });
-  let computer_b = world.add_computer(Computer {
-    vm: vm.clone(),
-    id: 1,
-  });
-  let computer_c = world.add_computer(Computer { vm, id: 2 });
-
-  world.connect(computer_a, computer_b);
-  world.connect(computer_b, computer_c);
-
-  world.update();
-
-  Ok(())
+  Ok(Computer { vm, id })
 }

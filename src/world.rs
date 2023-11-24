@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use petgraph::prelude::*;
-use rune::{runtime::VmError, FromValue, Vm};
+use rune::{runtime::VmError, Vm};
 
 use crate::External;
 
@@ -86,12 +86,13 @@ impl World {
 
   pub fn update(&mut self) {
     for computer in self.network.node_weights_mut() {
-      computer.update().unwrap();
+      let result = computer.update();
+      println!("{}: {:#?}", computer.id, result);
     }
   }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Computer {
   // pub events: Vec<Event>,
   pub vm: Vm,
@@ -101,8 +102,14 @@ pub struct Computer {
 }
 
 impl Computer {
-  pub fn update(&mut self) -> Result<(), VmError> {
-    <()>::from_value(self.vm.call(["main"], (External { value: self.id },))?)
+  pub fn update(&mut self) -> Result<External, VmError> {
+    rune::from_value::<External>(
+      self
+        .vm
+        .execute(["main"], (33u32,))?
+        .complete()
+        .into_result()?,
+    )
   }
 }
 
