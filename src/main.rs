@@ -6,9 +6,9 @@ use oh_no::*;
 async fn main() -> Result<(), Box<dyn Error>> {
   let mut world = World::default();
 
-  let computer_a = world.add_computer(create_computer(0)?);
-  let computer_b = world.add_computer(create_computer(1)?);
-  let computer_c = world.add_computer(create_computer(2)?);
+  let computer_a = world.add_computer(Box::new(MyPC { id: 0 }));
+  let computer_b = world.add_computer(Box::new(MyPC { id: 1 }));
+  let computer_c = world.add_computer(Box::new(MyPC { id: 2 }));
 
   world.connect(computer_a, computer_b);
   world.connect(computer_b, computer_c);
@@ -42,13 +42,7 @@ impl Computer for MyPC {
     Ok(vec![Message {
       data: vec![],
       from: self.id,
-      to: self.id,
+      to: (self.id + 1) % 3,
     }])
   }
-}
-
-fn create_computer(
-  id: ComputerId,
-) -> Result<Box<dyn Computer>, Box<dyn Error>> {
-  Ok(Box::new(MyPC { id }))
 }
