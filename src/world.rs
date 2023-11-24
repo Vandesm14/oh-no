@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+
+use crossbeam_channel::Sender;
 use petgraph::prelude::*;
 use rayon::prelude::*;
 
@@ -93,11 +96,10 @@ impl World {
       })
       .collect();
 
-    messages.into_iter().for_each(|message| {
-      let computer = self.computer_mut(message.to).unwrap();
-      let mut incoming = computer.incoming().clone();
-      incoming.push(message);
-      computer.set_incoming(incoming);
+    messages.into_par_iter().try_for_each(|message| {
+      let channel = self.computer(message.to)?.incoming();
+      channel.send(message).ok();
+      None
     });
   }
 }
@@ -111,7 +113,7 @@ pub struct Message {
 
 pub type Messages = Vec<Message>;
 
-pub trait Computer: std::fmt::Debug + Send {
+pub trait Computer: std::fmt::Debug + Send + Sync {
   /// The computer's unique identifier.
   fn id(&self) -> ComputerId;
 
@@ -121,9 +123,6 @@ pub trait Computer: std::fmt::Debug + Send {
   /// The update function of a computer.
   fn update(&mut self) -> Result<Vec<Message>, Box<dyn std::error::Error>>;
 
-  /// Gets incoming message queue.
-  fn incoming(&self) -> &Messages;
-
-  /// Sets incoming message queue.
-  fn set_incoming(&mut self, messages: Messages);
+  /// Gets a reference to a channel.
+  fn incoming(&self) -> &Sender<Message>;
 }

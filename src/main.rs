@@ -1,5 +1,6 @@
 use std::error::Error;
 
+use crossbeam_channel::{Receiver, Sender};
 use oh_no::*;
 
 #[tokio::main]
@@ -22,14 +23,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
 #[derive(Debug, Clone)]
 struct MyPC {
   id: ComputerId,
-  incoming: Messages,
+  sender: Sender<Message>,
+  receiver: Receiver<Message>,
 }
 
 impl MyPC {
   fn new(id: ComputerId) -> Self {
+    let (sender, receiver) = crossbeam_channel::unbounded();
+
     Self {
       id,
-      incoming: Vec::new(),
+      sender,
+      receiver,
     }
   }
 }
@@ -44,7 +49,8 @@ impl Computer for MyPC {
   }
 
   fn update(&mut self) -> Result<Vec<Message>, Box<dyn Error>> {
-    println!("{}: {:?}", self.id, self.incoming);
+    let incoming = self.receiver.try_iter().collect::<Vec<_>>();
+    println!("{}: {:?}", self.id, incoming);
 
     Ok(vec![Message {
       data: vec![],
@@ -53,11 +59,7 @@ impl Computer for MyPC {
     }])
   }
 
-  fn incoming(&self) -> &Messages {
-    &self.incoming
-  }
-
-  fn set_incoming(&mut self, messages: Messages) {
-    self.incoming = messages;
+  fn incoming(&self) -> &Sender<Message> {
+    &self.sender
   }
 }
