@@ -105,32 +105,3 @@ pub trait Computer: std::fmt::Debug {
     incoming: Vec<Message>,
   ) -> Result<Vec<Message>, Box<dyn std::error::Error>>;
 }
-
-// #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-// pub enum Event {
-//   Message(ComputerId),
-// }
-
-// #[cfg(test)]
-// mod tests {
-//   use super::*;
-
-//   #[test]
-//   fn a_b_c() {
-//     let mut world = World::default();
-
-//     let computer_a = world.add_computer(Computer::default());
-//     let computer_b = world.add_computer(Computer::default());
-//     let computer_c = world.add_computer(Computer::default());
-
-//     world.connect(computer_a, computer_b);
-//     world.connect(computer_b, computer_c);
-
-//     assert!(world.is_connected(computer_a, computer_b));
-//     assert!(!world.is_connected(computer_a, computer_c));
-//     assert!(world.is_connected(computer_b, computer_a));
-//     assert!(world.is_connected(computer_b, computer_c));
-//     assert!(!world.is_connected(computer_c, computer_a));
-//     assert!(world.is_connected(computer_c, computer_b));
-//   }
-// }
