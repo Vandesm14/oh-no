@@ -103,13 +103,13 @@ pub struct Computer {
 
 impl Computer {
   pub fn update(&mut self) -> Result<External, VmError> {
-    rune::from_value::<External>(
-      self
-        .vm
-        .execute(["main"], (33u32,))?
-        .complete()
-        .into_result()?,
-    )
+    rune::from_value::<External>(self.vm.call(
+      ["main"],
+      (External {
+        id: self.id,
+        outgoing: vec![],
+      },),
+    )?)
   }
 }
 
