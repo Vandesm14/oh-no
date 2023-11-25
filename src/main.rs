@@ -46,7 +46,7 @@ impl Computer for MyPC {
     id: ComputerId,
   ) -> Result<Vec<Message>, Box<dyn Error>> {
     let incoming = self.receiver.try_iter().collect::<Vec<_>>();
-    println!("{}: {:?}", id, incoming);
+    println!("{:?}: {:?}", id, incoming);
 
     // Ok(vec![Message { data: vec![] }])
     Ok(
@@ -55,7 +55,7 @@ impl Computer for MyPC {
         .map(|edge| Message {
           data: vec![],
           edge,
-          from: NodeIndex::from(id),
+          from: id,
         })
         .collect(),
     )

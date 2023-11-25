@@ -6,11 +6,11 @@ use petgraph::{
   prelude::*,
 };
 
-pub type ComputerId = u32;
+pub type ComputerId = NodeIndex;
 
 #[derive(Debug, Default)]
 pub struct World {
-  network: UnGraph<Box<dyn Computer>, (), ComputerId>,
+  network: UnGraph<Box<dyn Computer>, ()>,
 }
 
 impl World {
@@ -19,16 +19,14 @@ impl World {
     mut computer: Box<dyn Computer>,
   ) -> Result<ComputerId, Box<dyn Error>> {
     computer.setup()?;
-    Ok(self.network.add_node(computer).index() as ComputerId)
+    Ok(self.network.add_node(computer))
   }
 
   pub fn remove_computer(
     &mut self,
     computer_id: ComputerId,
   ) -> Option<Box<dyn Computer>> {
-    self
-      .network
-      .remove_node(NodeIndex::new(computer_id as usize))
+    self.network.remove_node(computer_id)
   }
 
   #[allow(clippy::borrowed_box)]
@@ -36,18 +34,14 @@ impl World {
     &self,
     computer_id: ComputerId,
   ) -> Option<&Box<dyn Computer>> {
-    self
-      .network
-      .node_weight(NodeIndex::new(computer_id as usize))
+    self.network.node_weight(computer_id)
   }
 
   pub fn computer_mut(
     &mut self,
     computer_id: ComputerId,
   ) -> Option<&mut Box<dyn Computer>> {
-    self
-      .network
-      .node_weight_mut(NodeIndex::new(computer_id as usize))
+    self.network.node_weight_mut(computer_id)
   }
 
   pub fn connect(
@@ -55,11 +49,7 @@ impl World {
     computer_id_a: ComputerId,
     computer_id_b: ComputerId,
   ) {
-    self.network.add_edge(
-      NodeIndex::new(computer_id_a as usize),
-      NodeIndex::new(computer_id_b as usize),
-      (),
-    );
+    self.network.add_edge(computer_id_a, computer_id_b, ());
   }
 
   pub fn disconnect(
@@ -67,10 +57,7 @@ impl World {
     computer_id_a: ComputerId,
     computer_id_b: ComputerId,
   ) {
-    if let Some(edge) = self.network.find_edge(
-      NodeIndex::new(computer_id_a as usize),
-      NodeIndex::new(computer_id_b as usize),
-    ) {
+    if let Some(edge) = self.network.find_edge(computer_id_a, computer_id_b) {
       self.network.remove_edge(edge);
     }
   }
@@ -80,10 +67,7 @@ impl World {
     computer_id_a: ComputerId,
     computer_id_b: ComputerId,
   ) -> bool {
-    self.network.contains_edge(
-      NodeIndex::new(computer_id_a as usize),
-      NodeIndex::new(computer_id_b as usize),
-    )
+    self.network.contains_edge(computer_id_a, computer_id_b)
   }
 
   pub fn update(&mut self) {
@@ -101,7 +85,7 @@ impl World {
           .collect::<Vec<_>>();
         let computer = self.network.node_weight_mut(index).unwrap();
 
-        let outgoing = computer.update(edges, index.index() as ComputerId);
+        let outgoing = computer.update(edges, index);
         if let Ok(outgoing) = outgoing {
           outgoing
         } else {
