@@ -1,7 +1,15 @@
 # Oh No!
 
-You get a page at 2am in the morning. The servers are down. You feel a sense of panic wash over you. You knew you should've spent more time on the infastructure fail-safe mechanisms.
+Simulate devices on a virtual network and see how they interact with each other.
 
-## But wait!
+## Abstract
 
-~~It was all a dream.~~ Instead of worrying about *what if*, you can be sure that your infrastructure is safe and sound. With **Oh No**, you can experiment with different failure scenarios and test your core algorithms. The mimimal core primitives allow you to build your own infra graph, failure scenarios, and test your code. You can test any prorgamming language, as long as it's Rust.
+Oh No is a graph-based networking simulator built in Rust. It provides a way of testing infrastructure handling and digital topology.
+
+### Device
+
+A device is a node on the graph. Devices have an update function that runs every tick. At the beginning of a tick, they are given a list of messages that they have received, and can send messages at the end of a tick.
+
+### Interface
+
+Devices are connected by interfaces (edges). There is a one-to-one mapping between interfaces and devices. To connect multiple devices together, one can use a prebuilt Hub device.
