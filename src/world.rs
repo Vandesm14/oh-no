@@ -1,10 +1,7 @@
-use std::{error::Error, fs};
+use std::error::Error;
 
 use crossbeam_channel::Sender;
-use petgraph::{
-  dot::{Config, Dot},
-  prelude::*,
-};
+use petgraph::prelude::*;
 
 pub type ComputerId = NodeIndex;
 
@@ -94,6 +91,24 @@ impl World {
       })
       .collect();
 
+    self.send_messages(messages);
+
+    // Uncomment this to write the graph to a file for debugging
+    //
+    // fs::write(
+    //   "graph.dot",
+    //   format!(
+    //     "{:?}",
+    //     Dot::with_config(
+    //       &self.network,
+    //       &[Config::EdgeIndexLabel, Config::NodeIndexLabel]
+    //     )
+    //   ),
+    // )
+    // .expect("Unable to write file");
+  }
+
+  pub fn send_messages(&mut self, messages: Messages) {
     messages.into_iter().for_each(|message| {
       let id = message.from;
       if let Some(recipients) = self.network.edge_endpoints(message.edge) {
@@ -109,20 +124,6 @@ impl World {
         }
       }
     });
-
-    // Uncomment this to write the graph to a file for debugging
-    //
-    // fs::write(
-    //   "graph.dot",
-    //   format!(
-    //     "{:?}",
-    //     Dot::with_config(
-    //       &self.network,
-    //       &[Config::EdgeIndexLabel, Config::NodeIndexLabel]
-    //     )
-    //   ),
-    // )
-    // .expect("Unable to write file");
   }
 }
 
