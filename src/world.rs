@@ -110,17 +110,19 @@ impl World {
       }
     });
 
-    fs::write(
-      "graph.dot",
-      format!(
-        "{:?}",
-        Dot::with_config(
-          &self.network,
-          &[Config::EdgeIndexLabel, Config::NodeIndexLabel]
-        )
-      ),
-    )
-    .expect("Unable to write file");
+    // Uncomment this to write the graph to a file for debugging
+    //
+    // fs::write(
+    //   "graph.dot",
+    //   format!(
+    //     "{:?}",
+    //     Dot::with_config(
+    //       &self.network,
+    //       &[Config::EdgeIndexLabel, Config::NodeIndexLabel]
+    //     )
+    //   ),
+    // )
+    // .expect("Unable to write file");
   }
 }
 
