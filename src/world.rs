@@ -235,4 +235,93 @@ mod tests {
     assert_eq!(pc_b.incoming.len(), 2);
     assert_eq!(pc_c.incoming.len(), 1);
   }
+
+  #[derive(Debug, Clone)]
+  struct Bus {
+    sender: Sender<Message>,
+    receiver: Receiver<Message>,
+  }
+
+  impl Bus {
+    fn new() -> Self {
+      let (sender, receiver) = crossbeam_channel::unbounded();
+
+      Self { sender, receiver }
+    }
+  }
+
+  impl Computer for Bus {
+    fn setup(&mut self) -> Result<(), Box<dyn Error>> {
+      Ok(())
+    }
+
+    fn update(
+      &mut self,
+      edges: Vec<EdgeIndex>,
+      id: ComputerId,
+    ) -> Result<Vec<Message>, Box<dyn Error>> {
+      let incoming = self.receiver.try_iter().collect::<Vec<_>>();
+
+      // Resend all messages to all edges except the one it came from
+      let mut messages: Messages = vec![];
+
+      println!("{:?}, {:?}", incoming, edges);
+
+      for message in incoming {
+        for edge in edges.iter() {
+          if *edge != message.edge {
+            messages.push(Message {
+              data: message.data.clone(),
+              edge: *edge,
+              from: id,
+            });
+          }
+        }
+      }
+
+      Ok(messages)
+    }
+
+    fn incoming(&self) -> &Sender<Message> {
+      &self.sender
+    }
+
+    fn as_any(&self) -> &dyn Any {
+      self
+    }
+  }
+
+  #[test]
+  fn test_bus() {
+    let mut world = World::default();
+
+    let computer_a = world.add_computer(Box::new(MyPC::new())).unwrap();
+    let computer_b = world.add_computer(Box::new(MyPC::new())).unwrap();
+    let computer_c = world.add_computer(Box::new(MyPC::new())).unwrap();
+
+    let bus = world.add_computer(Box::new(Bus::new())).unwrap();
+
+    world.connect(computer_a, bus);
+    world.connect(bus, computer_b);
+    world.connect(bus, computer_c);
+
+    // Computers send messages to the bus
+    world.update();
+    // Bus propagates messages to other computers
+    world.update();
+    // Computers receive and store messages
+    world.update();
+
+    let computer_a = world.computer(computer_a).unwrap();
+    let computer_b = world.computer(computer_b).unwrap();
+    let computer_c = world.computer(computer_c).unwrap();
+
+    let pc_a = computer_a.as_any().downcast_ref::<MyPC>().unwrap();
+    let pc_b = computer_b.as_any().downcast_ref::<MyPC>().unwrap();
+    let pc_c = computer_c.as_any().downcast_ref::<MyPC>().unwrap();
+
+    assert_eq!(pc_a.incoming.len(), 2);
+    assert_eq!(pc_b.incoming.len(), 2);
+    assert_eq!(pc_c.incoming.len(), 2);
+  }
 }
