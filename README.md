@@ -1,7 +1,6 @@
 # Oh No!
 
 [![Tests](https://github.com/Vandesm14/oh-no/actions/workflows/tests.yml/badge.svg)](https://github.com/Vandesm14/oh-no/actions/workflows/tests.yml)
-
 [![Checks](https://github.com/Vandesm14/oh-no/actions/workflows/check.yml/badge.svg)](https://github.com/Vandesm14/oh-no/actions/workflows/check.yml)
 
 Simulate devices on a virtual network and see how they interact with each other.
