@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{any::Any, error::Error};
 
 use crossbeam_channel::{Receiver, Sender};
 use oh_no::*;
@@ -63,5 +63,9 @@ impl Computer for MyPC {
 
   fn incoming(&self) -> &Sender<Message> {
     &self.sender
+  }
+
+  fn as_any(&self) -> &dyn Any {
+    self
   }
 }
