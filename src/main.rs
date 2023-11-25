@@ -7,9 +7,9 @@ use oh_no::*;
 async fn main() -> Result<(), Box<dyn Error>> {
   let mut world = World::default();
 
-  let computer_a = world.add_computer(Box::new(MyPC::new(0)));
-  let computer_b = world.add_computer(Box::new(MyPC::new(1)));
-  let computer_c = world.add_computer(Box::new(MyPC::new(2)));
+  let computer_a = world.add_computer(Box::new(MyPC::new(0))).unwrap();
+  let computer_b = world.add_computer(Box::new(MyPC::new(1))).unwrap();
+  let computer_c = world.add_computer(Box::new(MyPC::new(2))).unwrap();
 
   world.connect(computer_a, computer_b);
   world.connect(computer_b, computer_c);
@@ -45,7 +45,7 @@ impl Computer for MyPC {
   }
 
   fn setup(&mut self) -> Result<(), Box<dyn Error>> {
-    todo!()
+    Ok(())
   }
 
   fn update(&mut self) -> Result<Vec<Message>, Box<dyn Error>> {

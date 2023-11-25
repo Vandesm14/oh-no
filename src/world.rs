@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use crossbeam_channel::Sender;
 use petgraph::prelude::*;
 use rayon::prelude::*;
@@ -10,8 +12,12 @@ pub struct World {
 }
 
 impl World {
-  pub fn add_computer(&mut self, computer: Box<dyn Computer>) -> ComputerId {
-    self.network.add_node(computer).index() as ComputerId
+  pub fn add_computer(
+    &mut self,
+    mut computer: Box<dyn Computer>,
+  ) -> Result<ComputerId, Box<dyn Error>> {
+    computer.setup()?;
+    Ok(self.network.add_node(computer).index() as ComputerId)
   }
 
   pub fn remove_computer(
@@ -116,12 +122,12 @@ pub trait Computer: std::fmt::Debug + Send + Sync {
   /// The computer's unique identifier.
   fn id(&self) -> ComputerId;
 
-  /// The setup function of a computer.
+  /// The setup function runs as soon as a Computer is added to the World.
   fn setup(&mut self) -> Result<(), Box<dyn std::error::Error>>;
 
-  /// The update function of a computer.
+  /// The update function of a computer. This runs every world update.
   fn update(&mut self) -> Result<Vec<Message>, Box<dyn std::error::Error>>;
 
-  /// Gets a reference to a channel.
+  /// Gets a reference to the incoming message sender.
   fn incoming(&self) -> &Sender<Message>;
 }
