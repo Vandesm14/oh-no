@@ -4,7 +4,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-tokio = { version = "1.49", features = ["full"] }
-petgraph = "0.8"
-rayon = "1.11"
-crossbeam-channel = "0.5"
+petgraph = "0.8.3"
